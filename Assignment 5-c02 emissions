@@ -1,0 +1,40 @@
+#https://data.nal.usda.gov/dataset/data-chapter-5-energy-use-agriculture-us-agriculture-and-forestry-greenhouse-gas-inventory-1990-2018/resource/2c1c0188-bf17-4ec3-aa76-e791fc9c6110#{}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(gapminder)
+library(here)
+library(tidyverse)
+library(socviz)
+
+library(readr)
+farm_emissions <- read_csv("Farm energy emissions.csv")#Reading csv file
+
+library(maps)
+us_states <- map_data("state")#Store states
+
+theme_map <- function(base_size=9, base_family="") {
+  require(grid)
+  theme_bw(base_size=base_size, base_family=base_family) %+replace%
+    theme(axis.line=element_blank(), axis.text=element_blank(),
+          axis.ticks=element_blank(), axis.title=element_blank(),
+          panel.background=element_blank(), panel.border=element_blank(),
+          panel.grid=element_blank(), panel.spacing=unit(0, "lines"),
+          plot.background=element_blank(), legend.justification = c(0,0),
+          legend.position = c(0,0)
+    )
+}
+
+farm_emissions$region <- tolower(farm_emissions$State)
+farm_emissions_US <- left_join(us_states, farm_emissions)
+
+p0 <- ggplot(data = farm_emissions_US,
+             mapping = aes(x = long, y = lat, group = group, fill = MMT_Co2))
+
+p1 <- p0 + geom_polygon(color = "gray90", size = 0.1) +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) 
+
+p2 <- p1 + scale_fill_gradient2(low = "white", high = "red") +
+  labs(title = "CO2 Emissions From Agriculture in 2018",
+       subtitle = "Million Metric Tons CO2") 
+p2 + theme_map() + labs(fill = "MMT CO2")
