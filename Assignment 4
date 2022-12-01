@@ -1,0 +1,28 @@
+#assignment 4 
+#author: Gunnar Hanson 
+#date: 11/4/22
+
+rm(list=ls(all=TRUE))
+cat("\014")
+
+library(here)
+library(tidyverse)
+library(ggplot2)
+
+df <- read.csv(here("WOT.csv"))
+df <- filter(df, Battles > 3)
+view(df)
+
+
+df$WR <- as.numeric(gsub("%","",df$WR, fixed = TRUE))
+view(df)
+
+
+p1 <- ggplot(data = df, mapping = aes(x = Nation, y = WR)) + geom_boxplot() + 
+  labs(title = "Stats by Nation", x = "Nation Played", y = "Win Rate (WR)") 
+p2 <- ggplot(data = df, mapping = aes(x = Class, y = WR)) + geom_boxplot() + 
+  labs(title = "Stats by Type Played", x = "Type Played", y = "Win Rate (WR)") 
+
+library(pathcwork)
+
+p1 + p2 
